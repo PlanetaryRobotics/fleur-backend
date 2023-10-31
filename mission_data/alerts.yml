@@ -1,0 +1,10 @@
+groups:
+  - name: example_alerts
+    rules:
+      - alert: TemperatureHigh
+        expr: temperature_celsius > 25
+        for: 3s
+        labels:
+          severity: warning
+        annotations:
+          description: 'Temperature is too high ({{ $value }}°C)'

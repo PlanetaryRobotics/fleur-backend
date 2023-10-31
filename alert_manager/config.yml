@@ -1,0 +1,7 @@
+route:
+  receiver: 'webhook-receiver'
+
+receivers:
+  - name: 'webhook-receiver'
+    webhook_configs:
+      - url: 'http://mission_api:8080/alert'

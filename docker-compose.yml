@@ -1,0 +1,41 @@
+version: '3'
+services:
+  mission_data:
+    image: prom/prometheus
+    volumes:
+      - ./mission_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./mission_data/alerts.yml:/etc/prometheus/alerts.rules.yml
+    ports:
+      - 9090:9090
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+
+  mission_api:
+    build:
+      context: ./mission_api
+    ports:
+      - 8080:8080
+    depends_on:
+      - mission_data
+    volumes:
+      - ./mission_api:/app 
+
+  data_ingestion:
+    build:
+      context: ./data_ingestion
+    ports:
+      - 8070:8070
+    depends_on:
+      - mission_data
+    volumes:
+      - ./data_ingestion:/app 
+
+  alert_manager:
+    image: prom/alertmanager
+    volumes:
+      - ./alert_manager/config.yml:/etc/alert_manager/config.yml
+    ports:
+      - 9093:9093
+    command:
+      - '--config.file=/etc/alert_manager/config.yml'
