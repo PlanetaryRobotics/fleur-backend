@@ -9,7 +9,6 @@ def generate_temperature_data():
         # Simulate temperature data (replace this with your own data source)
         temperature = random.uniform(20.0, 45.0)
         temperature_gauge.set(temperature)
-        print(f'Temp set: {temperature}')
         time.sleep(5)
 
 if __name__ == '__main__':
