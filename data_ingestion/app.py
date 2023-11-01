@@ -4,6 +4,7 @@ import time
 
 temperature_gauge = Gauge('temperature_celsius', 'Current temperature in Celsius')
 
+# This file become the kafka broker.
 def generate_temperature_data():
     while True:
         # Simulate temperature data (replace this with your own data source)
@@ -11,6 +12,7 @@ def generate_temperature_data():
         temperature_gauge.set(temperature)
         print(f'Temp set: {temperature}')
         time.sleep(5)
+
 
 if __name__ == '__main__':
     # Start an HTTP server to expose the metrics
