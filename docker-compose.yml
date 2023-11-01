@@ -39,3 +39,11 @@ services:
       - 9093:9093
     command:
       - '--config.file=/etc/alert_manager/config.yml'
+
+  mission_dash:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./mission_dash/grafana.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./mission_dash/dashboards:/etc/grafana/provisioning/dashboards
