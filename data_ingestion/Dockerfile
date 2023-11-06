@@ -8,10 +8,10 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install prometheus_client
+RUN pip install influxdb_client
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8070
 
 # Run app.py when the container launches
-CMD ["python", "-u", "app.py"]
+CMD ["sh", "-c", "sleep 60 && python -u app.py"]

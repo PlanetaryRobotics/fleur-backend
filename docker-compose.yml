@@ -1,15 +1,18 @@
 version: '3'
 services:
   mission_data:
-    image: prom/prometheus
-    volumes:
-      - ./mission_data/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./mission_data/alerts.yml:/etc/prometheus/alerts.rules.yml
+    build:
+      context: ./mission_data
     ports:
-      - 9090:9090
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=30d'
+      - 8086:8086
+    environment:
+      - INFLUXDB_CONFIG_PATH=/etc/influxdb/influxdb.conf
+    volumes:
+      - ./mission_data/influxdb.conf:/etc/influxdb/influxdb.conf  # Map the local config file to the container's config directory
+      - ./mission_data/templates:/templates
+      - influxdbv2:/var/lib/influxdb2:rw
+    env_file:
+      - .env
 
   mission_api:
     build:
@@ -29,16 +32,9 @@ services:
     depends_on:
       - mission_data
     volumes:
-      - ./data_ingestion:/app 
-
-  alert_manager:
-    image: prom/alertmanager
-    volumes:
-      - ./alert_manager/config.yml:/etc/alert_manager/config.yml
-    ports:
-      - 9093:9093
-    command:
-      - '--config.file=/etc/alert_manager/config.yml'
+      - ./data_ingestion:/app
+    env_file:
+      - .env
 
   mission_dash:
     image: grafana/grafana
@@ -47,3 +43,8 @@ services:
     volumes:
       - ./mission_dash/grafana.yml:/etc/grafana/provisioning/datasources/datasources.yml
       - ./mission_dash/dashboards:/etc/grafana/provisioning/dashboards
+    env_file:
+      - .env
+      
+volumes:
+  influxdbv2:
