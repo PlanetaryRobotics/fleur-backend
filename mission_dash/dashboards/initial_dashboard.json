@@ -74,11 +74,11 @@
               },
               {
                 "color": "green",
-                "value": 30
+                "value": -6.65
               },
               {
                 "color": "red",
-                "value": 80
+                "value": -6.55
               }
             ]
           }
@@ -110,7 +110,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"mission\")\n  |> range(start: -1h)  // Adjust the time range as needed\n  |> filter(fn: (r) => r._measurement == \"temps\")",
+          "query": "from(bucket: \"mission\")\n  |> range(start: -1h)  // Adjust the time range as needed\n  |> filter(fn: (r) => r._measurement == \"TempC\")",
           "refId": "A"
         }
       ],

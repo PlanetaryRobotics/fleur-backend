@@ -49,21 +49,22 @@ if __name__ == "__main__":
             )
 
         # Print out all Telemetry we received:
+        data_to_send = dict()
         for telemetry in payloads[TelemetryPayload]:
             telemetry = cast(TelemetryPayload, telemetry)
+            data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = telemetry.data
 
             # Fish out a special telemetry channel we care about:
             if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
                 app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
+                data_to_send["TempC"] = telemetry.data - 273.15
 
-                data_to_send = {
-                    'TempC': telemetry.data - 273.15
-                }
-                json_data = json.dumps(data_to_send)
-                # Send the telemetry data to FLEUR backend server.
-                client_socket.send(json_data.encode('utf-8'))
             else:
                 app.logger.verbose(f"GOT: {telemetry}")
+
+        json_data = json.dumps(data_to_send)
+        # Send the telemetry data to FLEUR backend server.
+        client_socket.send(json_data.encode('utf-8'))
 
             
 
