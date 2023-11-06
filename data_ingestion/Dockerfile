@@ -10,7 +10,7 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install influxdb_client
 
-# Make port 8080 available to the world outside this container
+# Make port 8070 available to the world outside this container
 EXPOSE 8070
 
 # Run app.py when the container launches
