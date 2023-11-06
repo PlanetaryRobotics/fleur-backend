@@ -32,7 +32,7 @@ class clientConnection():
 		print(f"Accepted connection from {self.client_address}")
 
 	def get_next_request(self):
-		return self.client_socket.recv(2048)
+		return self.client_socket.recv(4096)
 
 	def get_next_json_request(self):
 		while True:
@@ -65,13 +65,13 @@ class missionDB():
 			metric_name = metric.split("-")
 			table, field = metric_name[0], metric_name[-1]
 			point = Point(table)\
-				.field(field, data_dict[metric])\
-				.time(datetime.utcnow(), WritePrecision.NS)
+				.field(field, data_dict[metric]['value'])\
+				.time(data_dict[metric]['timestamp'], WritePrecision.S)
 			points.append(point)
 		return points
 
-	def send_points_from_dict(self, data_dict):
-		points = self.to_points(data_dict)
+	def send_points_from_data(self, data):
+		points = self.to_points(data)
 		self.send_points(points)
 
 class ingestionServer():
@@ -85,7 +85,7 @@ class ingestionServer():
 				# Receive telemetry data from the client
 				telemetry_data = self.client_conn.get_next_json_request()
 
-				self.mission_db_client.send_points_from_dict(telemetry_data)
+				self.mission_db_client.send_points_from_data(telemetry_data)
 		except KeyboardInterrupt:
 			print("Client terminated.")
 

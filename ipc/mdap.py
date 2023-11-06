@@ -35,8 +35,7 @@ if __name__ == "__main__":
     telemetryCounter = dict()
     eventCounter = dict()
 
-    # while True:
-    for _ in range(500):  # read 50 packets worth of data then stop
+    while True:
         ipc_payload = manager.read('sub')
         try:
             msg = ipc.guard_msg(ipc_payload.message,
@@ -52,15 +51,24 @@ if __name__ == "__main__":
         data_to_send = dict()
         for telemetry in payloads[TelemetryPayload]:
             telemetry = cast(TelemetryPayload, telemetry)
-            data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = telemetry.data
+            data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
+                "value": telemetry.data,
+                "timestamp": telemetry.timestamp
+            }
 
             # Fish out a special telemetry channel we care about:
             if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
                 app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
-                data_to_send["TempC"] = telemetry.data - 273.15
+                data_to_send["TempC"] = {
+                    "value": telemetry.data - 273.15,
+                    "timestamp": telemetry.timestamp
+                }
 
             else:
-                app.logger.verbose(f"GOT: {telemetry}")
+                # app.logger.verbose(f"GOT: {telemetry}")
+                pass
+
+        print(data_to_send)
 
         json_data = json.dumps(data_to_send)
         # Send the telemetry data to FLEUR backend server.
