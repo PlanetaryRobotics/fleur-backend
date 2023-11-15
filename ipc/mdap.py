@@ -56,9 +56,9 @@ def process_ipc_payload(ipc_payload):
     return data_to_send
 
 
-def send_data_to_backend(socket, data):
+def send_data_to_backend(sock, data):
     json_data = json.dumps(data)
-    socket.send(json_data.encode('utf-8'))
+    sock.send(json_data.encode('utf-8'))
 
 
 def main():
