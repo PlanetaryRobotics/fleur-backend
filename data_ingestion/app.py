@@ -33,7 +33,7 @@ class ClientConnection:
         print(f"Accepted connection from {self.client_address}")
 
     def get_next_request(self):
-        return self.client_socket.recv(4096)
+        return self.client_socket.recv(8192)
 
     def get_next_json_request(self):
         while True:
@@ -54,27 +54,28 @@ class MissionDB:
     def __init__(self):
         self.token = os.getenv('DOCKER_INFLUXDB_INIT_ADMIN_TOKEN')
         self.org = os.getenv('DOCKER_INFLUXDB_INIT_ORG')
-        self.bucket = os.getenv('DOCKER_INFLUXDB_INIT_BUCKET')
         self.client = InfluxDBClient(url="http://mission_data:8086", token=self.token)
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
-    def send_points(self, points):
-        self.write_api.write(self.bucket, self.org, points)
+    def send_points(self, points_by_bucket):
+        for bucket in points_by_bucket:
+            self.write_api.write(bucket, self.org, points_by_bucket[bucket])
 
     def to_points(self, data_dict):
-        points = []
+        points_by_bucket = dict()
         for metric in data_dict:
             metric_name = metric.split("-")
             table, field = metric_name[0], metric_name[-1]
+            bucket = data_dict[metric]['bucket']
             point = Point(table) \
                 .field(field, data_dict[metric]['value']) \
                 .time(data_dict[metric]['timestamp'], WritePrecision.S)
-            points.append(point)
-        return points
+            points_by_bucket.setdefault(bucket, []).append(point)
+        return points_by_bucket
 
     def send_points_from_data(self, data):
-        points = self.to_points(data)
-        self.send_points(points)
+        points_by_bucket = self.to_points(data)
+        self.send_points(points_by_bucket)
 
 
 class IngestionServer:
