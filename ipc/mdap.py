@@ -3,7 +3,7 @@ import json
 from typing import cast
 import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
-from IrisBackendv3.codec.payload import TelemetryPayload
+from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
 
 IB3.init_from_latest()
@@ -26,6 +26,35 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     print("Connection with the telemetry server established successfully.")
     return client_socket
 
+def telem_to_message(data_to_send, payloads):
+    for telemetry in payloads[TelemetryPayload]:
+        telemetry = cast(TelemetryPayload, telemetry)
+        data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
+            "value": telemetry.data,
+            "timestamp": telemetry.timestamp,
+            "bucket": "mission_data"
+        }
+
+        if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
+            app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
+            data_to_send["TempC"] = {
+                "value": telemetry.data - 273.15,
+                "timestamp": telemetry.timestamp,
+                "bucket": "mission_data"
+            }
+
+    return data_to_send
+
+def events_to_message(data_to_send, payloads):
+    for event in payloads[EventPayload]:
+        event = cast(EventPayload, event)
+        data_to_send[f"{event.module.name}-{event.event.name}"] = {
+            "value": event.formatted_string,
+            "timestamp": event.timestamp,
+            "bucket": "mission_events"
+        }
+    
+    return data_to_send
 
 def process_ipc_payload(ipc_payload):
     try:
@@ -39,19 +68,9 @@ def process_ipc_payload(ipc_payload):
         return None
 
     data_to_send = {}
-    for telemetry in payloads[TelemetryPayload]:
-        telemetry = cast(TelemetryPayload, telemetry)
-        data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
-            "value": telemetry.data,
-            "timestamp": telemetry.timestamp
-        }
 
-        if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
-            app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
-            data_to_send["TempC"] = {
-                "value": telemetry.data - 273.15,
-                "timestamp": telemetry.timestamp
-            }
+    data_to_send = telem_to_message(data_to_send, payloads)
+    data_to_send = events_to_message(data_to_send, payloads)
 
     return data_to_send
 
