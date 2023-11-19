@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install influxdb_client uvicorn fastapi
+RUN pip install influxdb_client uvicorn fastapi pydantic
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080

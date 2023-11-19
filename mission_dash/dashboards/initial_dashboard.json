@@ -18,10 +18,44 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P951FEA4DE68E13C5"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Ascending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "query": "from(bucket: \"mission_alerts\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)",
+          "refId": "A"
+        }
+      ],
+      "title": "Mission Alerts",
+      "type": "logs"
+    },
     {
       "datasource": {
         "type": "influxdb",
@@ -89,7 +123,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -110,7 +144,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"mission\")\n  |> range(start: -1h)  // Adjust the time range as needed\n  |> filter(fn: (r) => r._measurement == \"TempC\")",
+          "query": "from(bucket: \"mission_data\")\n  |> range(start: -1h)  // Adjust the time range as needed\n  |> filter(fn: (r) => r._measurement == \"TempC\")",
           "refId": "A"
         }
       ],
@@ -118,7 +152,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "5s",
+  "refresh": "auto",
   "schemaVersion": 38,
   "tags": [],
   "templating": {
