@@ -23,6 +23,8 @@ services:
       - mission_data
     volumes:
       - ./mission_api:/app 
+    env_file:
+      - .env
 
   data_ingestion:
     build:

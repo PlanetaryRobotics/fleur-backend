@@ -8,10 +8,10 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install prometheus-api-client flask
+RUN pip install influxdb_client uvicorn fastapi
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
 
 # Run app.py when the container launches
-CMD ["python", "-u", "app.py"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

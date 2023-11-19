@@ -1,35 +1,21 @@
-import prometheus_api_client
-from flask import Flask, request
+from fastapi import FastAPI, HTTPException, Request
+from influxdb_client import InfluxDBClient
 
-import time
+import uvicorn
+import os
 
+app = FastAPI()
 
-# This will have the route to pushing data to FLEUR UI.
+influx_url = "http://mission_data:8086"
+token = os.getenv('DOCKER_INFLUXDB_INIT_ADMIN_TOKEN')
+org = os.getenv('DOCKER_INFLUXDB_INIT_ORG')
+client = InfluxDBClient(url=influx_url, token=token)
 
-app = Flask(__name__)
-
-
-@app.route('/alert', methods=['POST'])
-def receive_alert():
-    data = request.json  # Get the JSON data from the request
+@app.post('/alert')
+async def receive_alert(request: Request):
+    data = await request.json()  # Get the JSON data from the request
     print(data)  # Print the data to the terminal
     return 'OK'
-
-
-def main():
-    prometheus_url = "http://mission_data:9090"
-    query = 'up'
-
-    # Create a Prometheus API client
-    prometheus_api = prometheus_api_client.PrometheusConnect(url=prometheus_url)
-
-    # Query Prometheus for data
-    result = prometheus_api.custom_query(query)
-
-    print(f"Prometheus Query: {query}")
-    for item in result:
-        print(item['metric'], item['value'])
-
-
+        
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
