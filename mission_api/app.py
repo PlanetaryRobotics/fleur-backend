@@ -1,35 +1,54 @@
-import prometheus_api_client
-from flask import Flask, request
+from fastapi import FastAPI, HTTPException, Request
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+from pydantic import BaseModel
 
-import time
+import uvicorn
+import os
 
+app = FastAPI()
 
-# This will have the route to pushing data to FLEUR UI.
+influx_url = "http://mission_data:8086"
+token = os.getenv('DOCKER_INFLUXDB_INIT_ADMIN_TOKEN')
+org = os.getenv('DOCKER_INFLUXDB_INIT_ORG')
+client = InfluxDBClient(url=influx_url, token=token)
+write_api = client.write_api(write_options=SYNCHRONOUS)
 
-app = Flask(__name__)
+class AlertRequest(BaseModel, extra='allow'):
+    _check_id: str
+    _check_name: str
+    _level: str
+    _measurement: str
+    _message: str
+    _notification_endpoint_id: str
+    _notification_endpoint_name: str
+    _notification_rule_id: str
+    _notification_rule_name: str
+    _source_measurement: str
+    _source_timestamp: int
+    _start: str
+    _status_timestamp: int
+    _stop: str
+    _time: str
+    _type: str
+    _version: int
 
+@app.post('/alert')
+async def receive_alert(request: AlertRequest):
+    try:
+        data = request.dict()
 
-@app.route('/alert', methods=['POST'])
-def receive_alert():
-    data = request.json  # Get the JSON data from the request
-    print(data)  # Print the data to the terminal
+        point = Point(data["_check_name"]) \
+            .field(data["_notification_rule_name"], data["_message"]) \
+            .time(data["_start"], WritePrecision.S) \
+            .tag("measurement_name", data["_source_measurement"]) \
+            .tag("value", data[data["_source_measurement"]])
+        
+        write_api.write("mission_alerts", org, point)
+    except Exception as e:
+        return {'Error': e}
+    
     return 'OK'
-
-
-def main():
-    prometheus_url = "http://mission_data:9090"
-    query = 'up'
-
-    # Create a Prometheus API client
-    prometheus_api = prometheus_api_client.PrometheusConnect(url=prometheus_url)
-
-    # Query Prometheus for data
-    result = prometheus_api.custom_query(query)
-
-    print(f"Prometheus Query: {query}")
-    for item in result:
-        print(item['metric'], item['value'])
-
-
+        
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
