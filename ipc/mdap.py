@@ -26,35 +26,65 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     print("Connection with the telemetry server established successfully.")
     return client_socket
 
+
 def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
-        data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
+
+        message = {
             "value": telemetry.data,
             "timestamp": telemetry.timestamp,
             "bucket": "mission_data"
         }
 
-        if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
-            app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
-            data_to_send["TempC"] = {
-                "value": telemetry.data - 273.15,
-                "timestamp": telemetry.timestamp,
-                "bucket": "mission_data"
+        key = f"{telemetry.module.name}-{telemetry.channel.name}"
+
+        if key in data_to_send:
+            data_to_send[key].append(message)
+        else:
+            telemetry_list = [message]
+            data_to_send[key] = telemetry_list
+
+        if key == "WatchdogHeartbeatTvac-AdcTempKelvin":
+            key = "TempC"
+
+            # Convert the temperature from Kelvin to Celsius.
+            temperature = telemetry.data - 273.15
+            app.logger.notice(f"BATTERY TEMP IS: {temperature}ºC")
+
+            message = {
+                    "value": temperature,
+                    "timestamp": telemetry.timestamp,
+                    "bucket": "mission_data"
             }
+            if key in data_to_send:
+                data_to_send[key].append(message)
+            else:
+                telemetry_list = [message]
+                data_to_send[key] = telemetry_list
 
     return data_to_send
+
 
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
-        data_to_send[f"{event.module.name}-{event.event.name}"] = {
+
+        key = f"{event.module.name}-{event.event.name}"
+        message = {
             "value": event.formatted_string,
             "timestamp": event.timestamp,
             "bucket": "mission_events"
         }
-    
+
+        if key in data_to_send:
+            data_to_send[key].append(message)
+        else:
+            event_list = [message]
+            data_to_send[key] = event_list
+
     return data_to_send
+
 
 def process_ipc_payload(ipc_payload):
     try:
