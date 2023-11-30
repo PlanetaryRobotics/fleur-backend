@@ -61,16 +61,30 @@ class MissionDB:
         for bucket in points_by_bucket:
             self.write_api.write(bucket, self.org, points_by_bucket[bucket])
 
-    def to_points(self, data_dict):
+    def to_points(self, message):
         points_by_bucket = dict()
-        for metric in data_dict:
-            metric_name = metric.split("-")
-            table, field = metric_name[0], metric_name[-1]
-            bucket = data_dict[metric]['bucket']
-            point = Point(table) \
-                .field(field, data_dict[metric]['value']) \
-                .time(data_dict[metric]['timestamp'], WritePrecision.S)
-            points_by_bucket.setdefault(bucket, []).append(point)
+
+        bucket_name = message['asset']
+        payloads = message['data']
+
+        for payload in payloads:
+
+            measurement = payload['component']
+            timestamp = payload['timestamp']
+
+            # converting each payload into a Point object
+            point = (Point(measurement).time(timestamp, WritePrecision.S))
+
+            # attaching all the fields corresponding to the payload
+            for field_key, field_value in payload['fields']:
+                point.field(field_key, field_value)
+
+            # attaching all the tags corresponding to the payload
+            for tag_key, tag_value in payload['tags']:
+                point.tag(tag_key, tag_value)
+
+            points_by_bucket.setdefault(bucket_name, []).append(point)
+
         return points_by_bucket
 
     def send_points_from_data(self, data):
