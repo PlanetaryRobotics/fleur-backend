@@ -5,6 +5,7 @@ import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
 from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
+import time
 
 IB3.init_from_latest()
 
@@ -31,7 +32,7 @@ def telem_to_message(data_to_send, payloads):
         telemetry = cast(TelemetryPayload, telemetry)
         data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
             "value": telemetry.data,
-            "timestamp": telemetry.timestamp,
+            "timestamp": int(time.time()),
             "bucket": "mission_data"
         }
 
@@ -39,7 +40,7 @@ def telem_to_message(data_to_send, payloads):
             app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
             data_to_send["TempC"] = {
                 "value": telemetry.data - 273.15,
-                "timestamp": telemetry.timestamp,
+                "timestamp": int(time.time()),
                 "bucket": "mission_data"
             }
 
@@ -48,9 +49,10 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
+
         data_to_send[f"{event.module.name}-{event.event.name}"] = {
             "value": event.formatted_string,
-            "timestamp": event.timestamp,
+            "timestamp": int(time.time()),
             "bucket": "mission_events"
         }
     
@@ -90,7 +92,7 @@ def main():
             data_to_send = process_ipc_payload(ipc_payload)
 
             if data_to_send:
-                print(data_to_send)
+                # print(data_to_send)
                 send_data_to_backend(client_socket, data_to_send)
 
     except KeyboardInterrupt:
