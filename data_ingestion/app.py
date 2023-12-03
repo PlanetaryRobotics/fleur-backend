@@ -71,9 +71,11 @@ class MissionDB:
 
         for module_name, dic in data:
             for timestamp, fields in dic.items():
-                point = (Point(module_name).time(timestamp, WritePrecision.S)
-                         .field("channel", fields["channel"])
-                         .field("value", fields["value"]))
+                # Creating a Point object with module_name as measurement
+                point = Point(module_name).time(timestamp, WritePrecision.S)
+                # Adding channel name as field key and data as value to the point
+                for channel, data in fields.items():
+                    point.field(channel, data)
 
                 points_by_bucket[bucket_name].append(point)
 

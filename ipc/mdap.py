@@ -43,13 +43,11 @@ def telem_to_message(data_to_send, payloads):
 
             if "WatchdogHeartbeatTvac" in data_to_send:
                 if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
-                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["channel"] = "AdcTempKelvin"
-                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["value"] = temperature
+                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["AdcTempKelvin"] = temperature
             else:
                 data_to_send["data"]["WatchdogHeartbeatTvac"] = {
                     time.localtime(): {
-                        "channel": "AdcTempKelvin",
-                        "value": temperature
+                        "AdcTempKelvin": temperature
                     }
                 }
 
@@ -70,20 +68,17 @@ def populate_data_to_send(key, timestamp, channel, data, data_to_send):
         # module exists
         if timestamp in data_to_send["data"][key]:
             # timestamp exists, update or add the channel and value pair
-            data_to_send["data"][key][timestamp]["channel"] = channel
-            data_to_send["data"][key][timestamp]["value"] = data
+            data_to_send["data"][key][timestamp][channel] = data
         else:
             # timestamp doesn't exist, add it
             data_to_send["data"][key][timestamp] = {
-                "channel": channel,
-                "value": data
+                channel: data
             }
     else:
         # module doesn't exist, create one
         data_to_send["data"][key] = {
             timestamp: {
-                "channel": channel,
-                "value": data
+                channel: data
             }
         }
 
