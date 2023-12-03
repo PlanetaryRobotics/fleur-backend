@@ -42,3 +42,35 @@ Run the mdap.py ipc app under ipc/ in this repository in the IrisBackend
 
 - username: `admin`
 - initial password: `admin`
+
+
+## Data Model
+
+The message structure has been defined while keeping the concept of Point in mind. Point is a data entry in influx db that contains a unique timestamp, measurement, fields, values, and tags. This structure allows easy construction of a point object from the raw telemetry data fetched from the DOWNLINK topic in GDS.
+
+All points in a measurement MUST have the same set of fields and unique timestamps. Therefore, we cannot have the channel name as field_key because one module can have multiple channels. The issue that it brings here is that we cannot have more than one channel with the same timestamp.
+
+```
+message_structure = {
+    "asset": "mission_name",
+    "data": {
+        "module_name_measurement": {
+            "timestamp": {
+                "field1": "channel_name",
+                "field2": "value"
+            }
+        }
+    }
+}
+
+example_message = {
+    "asset": "iris",
+    "data": {
+        "WatchdogHeartbeatTvac": {
+            "123445567": {
+                "channel": "AdcTempKelvin",
+                "value": 273.15
+            }
+        }
+    }
+}
