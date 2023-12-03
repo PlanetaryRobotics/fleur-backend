@@ -6,6 +6,7 @@ import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
 from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
+import time
 
 IB3.init_from_latest()
 
@@ -59,9 +60,9 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
+
         populate_data_to_send(event.module.name, event.timestamp, event.event.name,
                               event.formatted_string, data_to_send)
-
     return data_to_send
 
 
@@ -125,7 +126,7 @@ def main():
             data_to_send = process_ipc_payload(ipc_payload)
 
             if data_to_send:
-                print(data_to_send)
+                # print(data_to_send)
                 send_data_to_backend(client_socket, data_to_send)
 
     except KeyboardInterrupt:
