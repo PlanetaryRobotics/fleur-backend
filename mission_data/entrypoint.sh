@@ -4,7 +4,7 @@
 exec influxd &
 
 # Wait for InfluxDB to start (you might need to customize this part)
-sleep 30s
+sleep 60s
 
 # Setup initial InfluxDB user 
 echo "Setting up influx..."
