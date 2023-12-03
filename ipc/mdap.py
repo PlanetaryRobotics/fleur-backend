@@ -1,5 +1,6 @@
 import socket
 import json
+import time
 from typing import cast
 import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
@@ -31,37 +32,26 @@ def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
 
-        message = {
-            "value": telemetry.data,
-            "timestamp": telemetry.timestamp,
-            "bucket": "mission_data"
-        }
+        populate_data_to_send(telemetry.module.name, telemetry.timestamp, telemetry.channel.name,
+                              telemetry.data, data_to_send)
 
-        key = f"{telemetry.module.name}-{telemetry.channel.name}"
-
-        if key in data_to_send:
-            data_to_send[key].append(message)
-        else:
-            telemetry_list = [message]
-            data_to_send[key] = telemetry_list
-
-        if key == "WatchdogHeartbeatTvac-AdcTempKelvin":
-            key = "TempC"
-
+        # TODO: The if condition below is solely for local testing purposes. Remove it later.
+        if telemetry.module.name == "WatchdogHeartbeatTvac":
             # Convert the temperature from Kelvin to Celsius.
             temperature = telemetry.data - 273.15
             app.logger.notice(f"BATTERY TEMP IS: {temperature}ºC")
 
-            message = {
-                    "value": temperature,
-                    "timestamp": telemetry.timestamp,
-                    "bucket": "mission_data"
-            }
-            if key in data_to_send:
-                data_to_send[key].append(message)
+            if "WatchdogHeartbeatTvac" in data_to_send:
+                if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
+                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["channel"] = "AdcTempKelvin"
+                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["value"] = temperature
             else:
-                telemetry_list = [message]
-                data_to_send[key] = telemetry_list
+                data_to_send["data"]["WatchdogHeartbeatTvac"] = {
+                    time.localtime(): {
+                        "channel": "AdcTempKelvin",
+                        "value": temperature
+                    }
+                }
 
     return data_to_send
 
@@ -69,21 +59,33 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
-
-        key = f"{event.module.name}-{event.event.name}"
-        message = {
-            "value": event.formatted_string,
-            "timestamp": event.timestamp,
-            "bucket": "mission_events"
-        }
-
-        if key in data_to_send:
-            data_to_send[key].append(message)
-        else:
-            event_list = [message]
-            data_to_send[key] = event_list
+        populate_data_to_send(event.module.name, event.timestamp, event.event.name,
+                              event.formatted_string, data_to_send)
 
     return data_to_send
+
+
+def populate_data_to_send(key, timestamp, channel, data, data_to_send):
+    if key in data_to_send["data"]:
+        # module exists
+        if timestamp in data_to_send["data"][key]:
+            # timestamp exists, update or add the channel and value pair
+            data_to_send["data"][key][timestamp]["channel"] = channel
+            data_to_send["data"][key][timestamp]["value"] = data
+        else:
+            # timestamp doesn't exist, add it
+            data_to_send["data"][key][timestamp] = {
+                "channel": channel,
+                "value": data
+            }
+    else:
+        # module doesn't exist, create one
+        data_to_send["data"][key] = {
+            timestamp: {
+                "channel": channel,
+                "value": data
+            }
+        }
 
 
 def process_ipc_payload(ipc_payload):
@@ -97,7 +99,10 @@ def process_ipc_payload(ipc_payload):
         )
         return None
 
-    data_to_send = {}
+    data_to_send = {
+        "asset": "iris",
+        "data": {}
+    }
 
     data_to_send = telem_to_message(data_to_send, payloads)
     data_to_send = events_to_message(data_to_send, payloads)
