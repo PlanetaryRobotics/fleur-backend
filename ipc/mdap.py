@@ -1,12 +1,12 @@
-import socket
 import json
-import time
+import socket
+from datetime import datetime
 from typing import cast
+
 import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
 from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
-import time
 
 IB3.init_from_latest()
 
@@ -33,7 +33,12 @@ def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
 
-        populate_data_to_send(telemetry.module.name, telemetry.timestamp, telemetry.channel.name,
+        # Get the current time with microsecond precision
+        current_time = datetime.utcnow()
+        # Convert datetime to string with a specific format
+        date_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        populate_data_to_send(telemetry.module.name, date_string, telemetry.channel.name,
                               telemetry.data, data_to_send)
 
         # TODO: The if condition below is solely for local testing purposes. Remove it later.
@@ -44,10 +49,10 @@ def telem_to_message(data_to_send, payloads):
 
             if "WatchdogHeartbeatTvac" in data_to_send:
                 if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
-                    data_to_send["WatchdogHeartbeatTvac"][time.localtime()]["AdcTempKelvin"] = temperature
+                    data_to_send["WatchdogHeartbeatTvac"][date_string]["AdcTempKelvin"] = temperature
             else:
                 data_to_send["data"]["WatchdogHeartbeatTvac"] = {
-                    time.localtime(): {
+                    date_string: {
                         "AdcTempKelvin": temperature
                     }
                 }
@@ -59,7 +64,13 @@ def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
 
-        populate_data_to_send(event.module.name, event.timestamp, event.event.name,
+        # Generating current timestamp in influx compatible format for Point
+        # Get the current time with microsecond precision
+        current_time = datetime.utcnow()
+        # Convert datetime to string with a specific format
+        date_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        populate_data_to_send(event.module.name, date_string, event.event.name,
                               event.formatted_string, data_to_send)
     return data_to_send
 
@@ -121,7 +132,7 @@ def main():
             data_to_send = process_ipc_payload(ipc_payload)
 
             if data_to_send:
-                # print(data_to_send)
+                print(data_to_send)
                 send_data_to_backend(client_socket, data_to_send)
 
     except KeyboardInterrupt:

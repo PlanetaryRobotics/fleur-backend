@@ -66,10 +66,14 @@ class MissionDB:
 
         bucket_name = message["asset"]
         data = message["data"]
+        # print(data)
 
-        points_by_bucket = dict().setdefault(bucket_name, [])
+        points_by_bucket = {
+            bucket_name: []
+        }
 
-        for module_name, dic in data:
+        # Unpacking data
+        for module_name, dic in data.items():
             for timestamp, fields in dic.items():
                 # Creating a Point object with module_name as measurement
                 point = Point(module_name).time(timestamp, WritePrecision.S)
@@ -77,14 +81,24 @@ class MissionDB:
                 for channel, data in fields.items():
                     point.field(channel, data)
 
+                # Print the InfluxDB point object as line protocol
+                line_protocol = point.to_line_protocol()
+                print("InfluxDB Point Object: ", line_protocol)
+
+                # Append it under the bucket
                 points_by_bucket[bucket_name].append(point)
 
+        print("points added to the buckets successfully.")
         return points_by_bucket
 
     def send_points_from_data(self, data):
         points_by_bucket = self.to_points(data)
         self.send_points(points_by_bucket)
 
+
+# class TelemetryData(BaseModel):
+#     asset: str
+#     data: dict
 
 class IngestionServer:
     def __init__(self):
@@ -96,14 +110,15 @@ class IngestionServer:
             while True:
                 # Receive telemetry data from the client
                 telemetry_data = self.client_conn.get_next_json_request()
+                # print(telemetry_data)
 
                 # Data validation
-                validated_telem_data = TelemetryData(**telemetry_data)
+                # validated_telem_data = TelemetryData(**telemetry_data)
 
-                #print validation result
-                print(validated_telem_data.json())
+                # print validation result
+                # print(validated_telem_data)
 
-                self.mission_db_client.send_points_from_data(validated_telem_data)
+                self.mission_db_client.send_points_from_data(telemetry_data)
 
         except KeyboardInterrupt:
             print("Client terminated.")
@@ -111,11 +126,6 @@ class IngestionServer:
         # Clean up
         client_socket.close()
         server_socket.close()
-
-
-class TelemetryData(BaseModel):
-    asset: str
-    data: dict[]
 
 
 if __name__ == '__main__':
