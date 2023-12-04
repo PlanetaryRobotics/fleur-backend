@@ -33,12 +33,7 @@ def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
 
-        # Get the current time with microsecond precision
-        current_time = datetime.utcnow()
-        # Convert datetime to string with a specific format
-        date_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
-
-        populate_data_to_send(telemetry.module.name, date_string, telemetry.channel.name,
+        populate_data_to_send(telemetry.module.name, telemetry.channel.name,
                               telemetry.data, data_to_send)
 
         # TODO: The if condition below is solely for local testing purposes. Remove it later.
@@ -47,12 +42,13 @@ def telem_to_message(data_to_send, payloads):
             temperature = telemetry.data - 273.15
             app.logger.notice(f"BATTERY TEMP IS: {temperature}ºC")
 
+            timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             if "WatchdogHeartbeatTvac" in data_to_send:
                 if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
-                    data_to_send["WatchdogHeartbeatTvac"][date_string]["AdcTempKelvin"] = temperature
+                    data_to_send["WatchdogHeartbeatTvac"][timestamp]["AdcTempKelvin"] = temperature
             else:
                 data_to_send["data"]["WatchdogHeartbeatTvac"] = {
-                    date_string: {
+                    timestamp: {
                         "AdcTempKelvin": temperature
                     }
                 }
@@ -63,19 +59,17 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
+        populate_data_to_send(event.module.name, event.event.name, event.formatted_string, data_to_send)
 
-        # Generating current timestamp in influx compatible format for Point
-        # Get the current time with microsecond precision
-        current_time = datetime.utcnow()
-        # Convert datetime to string with a specific format
-        date_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
-
-        populate_data_to_send(event.module.name, date_string, event.event.name,
-                              event.formatted_string, data_to_send)
     return data_to_send
 
 
-def populate_data_to_send(key, timestamp, channel, data, data_to_send):
+def populate_data_to_send(key, channel, data, data_to_send):
+    # Get the current time with microsecond precision
+    current_time = datetime.utcnow()
+    # Convert datetime to string with a specific format
+    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
     if key in data_to_send["data"]:
         # module exists
         if timestamp in data_to_send["data"][key]:

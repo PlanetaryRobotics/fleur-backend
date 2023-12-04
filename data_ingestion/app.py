@@ -1,12 +1,9 @@
+import json
+import os
+import socket
+
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
-from datetime import datetime
-from pydantic import BaseModel
-
-import socket
-import os
-import time
-import json
 
 
 class ClientConnection:
@@ -66,7 +63,6 @@ class MissionDB:
 
         bucket_name = message["asset"]
         data = message["data"]
-        # print(data)
 
         points_by_bucket = {
             bucket_name: []
@@ -96,10 +92,6 @@ class MissionDB:
         self.send_points(points_by_bucket)
 
 
-# class TelemetryData(BaseModel):
-#     asset: str
-#     data: dict
-
 class IngestionServer:
     def __init__(self):
         self.mission_db_client = MissionDB()
@@ -110,14 +102,6 @@ class IngestionServer:
             while True:
                 # Receive telemetry data from the client
                 telemetry_data = self.client_conn.get_next_json_request()
-                # print(telemetry_data)
-
-                # Data validation
-                # validated_telem_data = TelemetryData(**telemetry_data)
-
-                # print validation result
-                # print(validated_telem_data)
-
                 self.mission_db_client.send_points_from_data(telemetry_data)
 
         except KeyboardInterrupt:
