@@ -56,8 +56,7 @@ message_structure = {
     "data": {
         "module_name_measurement": {
             "timestamp": {
-                "field1": "channel_name",
-                "field2": "value"
+                "channel_name": "value"
             }
         }
     }
@@ -68,8 +67,7 @@ example_message = {
     "data": {
         "WatchdogHeartbeatTvac": {
             "123445567": {
-                "channel": "AdcTempKelvin",
-                "value": 273.15
+                "AdcTempKelvin": 273.15
             }
         }
     }
