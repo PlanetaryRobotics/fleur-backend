@@ -1,9 +1,12 @@
 import json
 import os
 import socket
+import logging
 
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+
+log = logging.getLogger("logger")
 
 
 class ClientConnection:
@@ -44,8 +47,7 @@ class ClientConnection:
                 received_data = json.loads(client_request)
                 return received_data
             except Exception as e:
-                print("Error decoding client request")
-                print(e, client_request)
+                log.error("Error decoding client request", e, client_request)
 
 
 def to_points(data):
@@ -74,7 +76,10 @@ class MissionDB:
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
     def send_points(self, points, bucket):
-        self.write_api.write(bucket, self.org, points)
+        try:
+            self.write_api.write(bucket, self.org, points)
+        except Exception as e:
+            log.error("Failed to write points to the bucket: %s", str(e))
 
 
 class IngestionServer:
