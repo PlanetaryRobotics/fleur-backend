@@ -48,6 +48,24 @@ class ClientConnection:
                 print(e, client_request)
 
 
+def to_points(data):
+    points = []
+
+    # Unpacking data
+    for module_name, dic in data.items():
+        for timestamp, fields in dic.items():
+            # Creating a Point object with module_name as measurement
+            point = Point(module_name).time(timestamp, WritePrecision.S)
+            # Adding channel name as field key and data as value to the point
+            for channel, data in fields.items():
+                point.field(channel, data)
+
+            # Append to the list of points
+            points.append(point)
+
+    return points
+
+
 class MissionDB:
     def __init__(self):
         self.token = os.getenv('DOCKER_INFLUXDB_INIT_ADMIN_TOKEN')
@@ -55,41 +73,8 @@ class MissionDB:
         self.client = InfluxDBClient(url="http://mission_data:8086", token=self.token)
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
-    def send_points(self, points_by_bucket):
-        for bucket in points_by_bucket:
-            self.write_api.write(bucket, self.org, points_by_bucket[bucket])
-
-    def to_points(self, message):
-
-        bucket_name = message["asset"]
-        data = message["data"]
-
-        points_by_bucket = {
-            bucket_name: []
-        }
-
-        # Unpacking data
-        for module_name, dic in data.items():
-            for timestamp, fields in dic.items():
-                # Creating a Point object with module_name as measurement
-                point = Point(module_name).time(timestamp, WritePrecision.S)
-                # Adding channel name as field key and data as value to the point
-                for channel, data in fields.items():
-                    point.field(channel, data)
-
-                # Print the InfluxDB point object as line protocol
-                line_protocol = point.to_line_protocol()
-                print("InfluxDB Point Object: ", line_protocol)
-
-                # Append it under the bucket
-                points_by_bucket[bucket_name].append(point)
-
-        print("points added to the buckets successfully.")
-        return points_by_bucket
-
-    def send_points_from_data(self, data):
-        points_by_bucket = self.to_points(data)
-        self.send_points(points_by_bucket)
+    def send_points(self, points, bucket):
+        self.write_api.write(bucket, self.org, points)
 
 
 class IngestionServer:
@@ -102,7 +87,15 @@ class IngestionServer:
             while True:
                 # Receive telemetry data from the client
                 telemetry_data = self.client_conn.get_next_json_request()
-                self.mission_db_client.send_points_from_data(telemetry_data)
+
+                bucket = telemetry_data["asset"]
+                data = telemetry_data["data"]
+
+                # Convert the data to points
+                points = to_points(data)
+
+                # Send the points to the appropriate bucket in influxdb
+                self.mission_db_client.send_points(points, bucket)
 
         except KeyboardInterrupt:
             print("Client terminated.")

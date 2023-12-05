@@ -29,6 +29,23 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     return client_socket
 
 
+def test_telemetry(data_to_send, temperature):
+    # Convert the temperature from Kelvin to Celsius.
+    value = temperature - 273.15
+    app.logger.notice(f"BATTERY TEMP IS: {value}ºC")
+
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    if "WatchdogHeartbeatTvac" in data_to_send:
+        if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
+            data_to_send["WatchdogHeartbeatTvac"][timestamp]["AdcTempKelvin"] = value
+    else:
+        data_to_send["data"]["WatchdogHeartbeatTvac"] = {
+            timestamp: {
+                "AdcTempKelvin": value
+            }
+        }
+
+
 def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
@@ -36,22 +53,9 @@ def telem_to_message(data_to_send, payloads):
         populate_data_to_send(telemetry.module.name, telemetry.channel.name,
                               telemetry.data, data_to_send)
 
-        # TODO: The if condition below is solely for local testing purposes. Remove it later.
+        # Testing against this particular module
         if telemetry.module.name == "WatchdogHeartbeatTvac":
-            # Convert the temperature from Kelvin to Celsius.
-            temperature = telemetry.data - 273.15
-            app.logger.notice(f"BATTERY TEMP IS: {temperature}ºC")
-
-            timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            if "WatchdogHeartbeatTvac" in data_to_send:
-                if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
-                    data_to_send["WatchdogHeartbeatTvac"][timestamp]["AdcTempKelvin"] = temperature
-            else:
-                data_to_send["data"]["WatchdogHeartbeatTvac"] = {
-                    timestamp: {
-                        "AdcTempKelvin": temperature
-                    }
-                }
+            test_telemetry(data_to_send, telemetry.data)
 
     return data_to_send
 
@@ -64,35 +68,31 @@ def events_to_message(data_to_send, payloads):
     return data_to_send
 
 
-def populate_data_to_send(key, channel, data, data_to_send):
+def populate_data_to_send(metric, channel, value, data_to_send):
     # Get the current time with microsecond precision
     current_time = datetime.utcnow()
     # Convert datetime to string with a specific format
     timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
-    if key in data_to_send["data"]:
-        # module exists
-        if timestamp in data_to_send["data"][key]:
-            # timestamp exists, update or add the channel and value pair
-            data_to_send["data"][key][timestamp][channel] = data
-        else:
-            # timestamp doesn't exist, add it
-            data_to_send["data"][key][timestamp] = {
-                channel: data
-            }
-    else:
-        # module doesn't exist, create one
-        data_to_send["data"][key] = {
-            timestamp: {
-                channel: data
-            }
-        }
+    metrics = data_to_send["data"]
+
+    metric_data = metrics.get(metric, {})
+    timestamp_data = metric_data.get(timestamp, {})
+
+    # Update or add the channel and value pair
+    timestamp_data[channel] = value
+
+    # Update the data_to_send dictionary
+    metric_data[timestamp] = timestamp_data
+    metrics[metric] = metric_data
 
 
 def process_ipc_payload(ipc_payload):
     try:
         msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
         payloads = msg.content.payloads
+        print("Payload received: ", payloads)
+
     except Exception as e:
         app.logger.error(
             f"Failed to decode IPC message `{msg}` "
