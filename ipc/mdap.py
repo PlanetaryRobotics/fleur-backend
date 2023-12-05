@@ -91,7 +91,6 @@ def process_ipc_payload(ipc_payload):
     try:
         msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
         payloads = msg.content.payloads
-        print("Payload received: ", payloads)
 
     except Exception as e:
         app.logger.error(
@@ -126,7 +125,6 @@ def main():
             data_to_send = process_ipc_payload(ipc_payload)
 
             if data_to_send:
-                print(data_to_send)
                 send_data_to_backend(client_socket, data_to_send)
 
     except KeyboardInterrupt:
