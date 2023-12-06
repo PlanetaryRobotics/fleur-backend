@@ -35,15 +35,16 @@ def test_telemetry(data_to_send, temperature):
     app.logger.notice(f"BATTERY TEMP IS: {value}ºC")
 
     timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    if "WatchdogHeartbeatTvac" in data_to_send:
-        if "AdcTempKelvin" in data_to_send["WatchdogHeartbeatTvac"]["timestamp"]:
-            data_to_send["WatchdogHeartbeatTvac"][timestamp]["AdcTempKelvin"] = value
-    else:
-        data_to_send["data"]["WatchdogHeartbeatTvac"] = {
-            timestamp: {
-                "AdcTempKelvin": value
-            }
-        }
+    metrics = data_to_send["data"]
+    metric_data = metrics.get("WatchdogHeartbeatTvac", {})
+    timestamp_data = metric_data.get(timestamp, {})
+
+    # Update or add the channel and value pair
+    timestamp_data["AdcTempKelvin"] = value
+
+    # Update the data_to_send dictionary
+    metric_data[timestamp] = timestamp_data
+    metrics["WatchdogHeartbeatTvac"] = metric_data
 
 
 def telem_to_message(data_to_send, payloads):
@@ -54,7 +55,7 @@ def telem_to_message(data_to_send, payloads):
                               telemetry.data, data_to_send)
 
         # Testing against this particular module
-        if telemetry.module.name == "WatchdogHeartbeatTvac":
+        if telemetry.module.name == "WatchdogHeartbeatTvac" and telemetry.channel.name == "AdcTempKelvin":
             test_telemetry(data_to_send, telemetry.data)
 
     return data_to_send
