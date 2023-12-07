@@ -6,10 +6,10 @@ spec:
     every: 5s
     name: TempOverHeat
     query: |-
-        from(bucket: "mission_data")
+        from(bucket: "iris")
           |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-          |> filter(fn: (r) => r["_measurement"] == "TempC")
-          |> filter(fn: (r) => r["_field"] == "TempC")
+          |> filter(fn: (r) => r["_measurement"] == "WatchdogHeartbeatTvac")
+          |> filter(fn: (r) => r["_field"] == "AdcTempKelvin")
           |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
           |> yield(name: "mean")
     status: active

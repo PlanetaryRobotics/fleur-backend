@@ -1,11 +1,12 @@
+import json
+import os
+import socket
+import logging
+
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
-from datetime import datetime
 
-import socket
-import os
-import time
-import json
+log = logging.getLogger("logger")
 
 
 class ClientConnection:
@@ -46,8 +47,25 @@ class ClientConnection:
                 received_data = json.loads(client_request)
                 return received_data
             except Exception as e:
-                print("Error decoding client request")
-                print(e, client_request)
+                log.error("Error decoding client request", e, client_request)
+
+
+def to_points(data):
+    points = []
+
+    # Unpacking data
+    for module_name, dic in data.items():
+        for timestamp, fields in dic.items():
+            # Creating a Point object with module_name as measurement
+            point = Point(module_name).time(timestamp, WritePrecision.S)
+            # Adding channel name as field key and data as value to the point
+            for channel, data in fields.items():
+                point.field(channel, data)
+
+            # Append to the list of points
+            points.append(point)
+
+    return points
 
 
 class MissionDB:
@@ -57,25 +75,11 @@ class MissionDB:
         self.client = InfluxDBClient(url="http://mission_data:8086", token=self.token)
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
-    def send_points(self, points_by_bucket):
-        for bucket in points_by_bucket:
-            self.write_api.write(bucket, self.org, points_by_bucket[bucket])
-
-    def to_points(self, data_dict):
-        points_by_bucket = dict()
-        for metric in data_dict:
-            metric_name = metric.split("-")
-            table, field = metric_name[0], metric_name[-1]
-            bucket = data_dict[metric]['bucket']
-            point = Point(table) \
-                .field(field, data_dict[metric]['value']) \
-                .time(data_dict[metric]['timestamp'], WritePrecision.S)
-            points_by_bucket.setdefault(bucket, []).append(point)
-        return points_by_bucket
-
-    def send_points_from_data(self, data):
-        points_by_bucket = self.to_points(data)
-        self.send_points(points_by_bucket)
+    def send_points(self, points, bucket):
+        try:
+            self.write_api.write(bucket, self.org, points)
+        except Exception as e:
+            log.error("Failed to write points to the bucket: %s", str(e))
 
 
 class IngestionServer:
@@ -89,7 +93,15 @@ class IngestionServer:
                 # Receive telemetry data from the client
                 telemetry_data = self.client_conn.get_next_json_request()
 
-                self.mission_db_client.send_points_from_data(telemetry_data)
+                bucket = telemetry_data["asset"]
+                data = telemetry_data["data"]
+
+                # Convert the data to points
+                points = to_points(data)
+
+                # Send the points to the appropriate bucket in influxdb
+                self.mission_db_client.send_points(points, bucket)
+
         except KeyboardInterrupt:
             print("Client terminated.")
 

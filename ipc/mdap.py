@@ -1,11 +1,12 @@
-import socket
 import json
+import socket
+from datetime import datetime
 from typing import cast
+
 import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
 from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
-import time
 
 IB3.init_from_latest()
 
@@ -27,41 +28,71 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     print("Connection with the telemetry server established successfully.")
     return client_socket
 
+
+def test_telemetry(data_to_send, temperature):
+    # Convert the temperature from Kelvin to Celsius.
+    value = temperature - 273.15
+    app.logger.notice(f"BATTERY TEMP IS: {value}ºC")
+
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    metrics = data_to_send["data"]
+    metric_data = metrics.get("WatchdogHeartbeatTvac", {})
+    timestamp_data = metric_data.get(timestamp, {})
+
+    # Update or add the channel and value pair
+    timestamp_data["AdcTempKelvin"] = value
+
+    # Update the data_to_send dictionary
+    metric_data[timestamp] = timestamp_data
+    metrics["WatchdogHeartbeatTvac"] = metric_data
+
+
 def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
-        data_to_send[f"{telemetry.module.name}-{telemetry.channel.name}"] = {
-            "value": telemetry.data,
-            "timestamp": int(time.time()),
-            "bucket": "mission_data"
-        }
 
-        if (telemetry.module.name, telemetry.channel.name) == ('WatchdogHeartbeatTvac', 'AdcTempKelvin'):
-            app.logger.notice(f"BATTERY TEMP IS: {telemetry.data - 273.15}ºC")
-            data_to_send["TempC"] = {
-                "value": telemetry.data - 273.15,
-                "timestamp": int(time.time()),
-                "bucket": "mission_data"
-            }
+        populate_data_to_send(telemetry.module.name, telemetry.channel.name,
+                              telemetry.data, data_to_send)
+
+        # Testing against this particular module
+        if telemetry.module.name == "WatchdogHeartbeatTvac" and telemetry.channel.name == "AdcTempKelvin":
+            test_telemetry(data_to_send, telemetry.data)
 
     return data_to_send
+
 
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
+        populate_data_to_send(event.module.name, event.event.name, event.formatted_string, data_to_send)
 
-        data_to_send[f"{event.module.name}-{event.event.name}"] = {
-            "value": event.formatted_string,
-            "timestamp": int(time.time()),
-            "bucket": "mission_events"
-        }
-    
     return data_to_send
+
+
+def populate_data_to_send(metric, channel, value, data_to_send):
+    # Get the current time with microsecond precision
+    current_time = datetime.utcnow()
+    # Convert datetime to string with a specific format
+    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    metrics = data_to_send["data"]
+
+    metric_data = metrics.get(metric, {})
+    timestamp_data = metric_data.get(timestamp, {})
+
+    # Update or add the channel and value pair
+    timestamp_data[channel] = value
+
+    # Update the data_to_send dictionary
+    metric_data[timestamp] = timestamp_data
+    metrics[metric] = metric_data
+
 
 def process_ipc_payload(ipc_payload):
     try:
         msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
         payloads = msg.content.payloads
+
     except Exception as e:
         app.logger.error(
             f"Failed to decode IPC message `{msg}` "
@@ -69,7 +100,10 @@ def process_ipc_payload(ipc_payload):
         )
         return None
 
-    data_to_send = {}
+    data_to_send = {
+        "asset": "iris",
+        "data": {}
+    }
 
     data_to_send = telem_to_message(data_to_send, payloads)
     data_to_send = events_to_message(data_to_send, payloads)
@@ -92,7 +126,6 @@ def main():
             data_to_send = process_ipc_payload(ipc_payload)
 
             if data_to_send:
-                # print(data_to_send)
                 send_data_to_backend(client_socket, data_to_send)
 
     except KeyboardInterrupt:

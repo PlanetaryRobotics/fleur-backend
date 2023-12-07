@@ -15,3 +15,4 @@ echo "Applying templates..."
 influx apply -f /templates --force true
 
 tail -f /dev/null
+

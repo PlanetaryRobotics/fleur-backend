@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install influxdb_client
+RUN pip install influxdb_client pydantic
 
 # Make port 8070 available to the world outside this container
 EXPOSE 8070
