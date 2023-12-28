@@ -29,12 +29,15 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     return client_socket
 
 
-def test_telemetry(data_to_send, temperature):
+def test_telemetry(data_to_send, temperature, timestamp_dt: datetime | None = None):
     # Convert the temperature from Kelvin to Celsius.
     value = temperature - 273.15
     app.logger.notice(f"BATTERY TEMP IS: {value}ºC")
 
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    if timestamp_dt is None:
+        timestamp_dt = datetime.utcnow()
+
+    timestamp = timestamp_dt.strftime("%Y-%m-%d %H:%M:%S")
     metrics = data_to_send["data"]
     metric_data = metrics.get("WatchdogHeartbeatTvac", {})
     timestamp_data = metric_data.get(timestamp, {})
@@ -52,11 +55,13 @@ def telem_to_message(data_to_send, payloads):
         telemetry = cast(TelemetryPayload, telemetry)
 
         populate_data_to_send(telemetry.module.name, telemetry.channel.name,
-                              telemetry.data, data_to_send)
+                              telemetry.data, data_to_send,
+                              timestamp_dt=telemetry.downlink_times.scet_est)
 
         # Testing against this particular module
         if telemetry.module.name == "WatchdogHeartbeatTvac" and telemetry.channel.name == "AdcTempKelvin":
-            test_telemetry(data_to_send, telemetry.data)
+            test_telemetry(data_to_send, telemetry.data,
+                           timestamp_dt=telemetry.downlink_times.scet_est)
 
     return data_to_send
 
@@ -64,16 +69,22 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
-        populate_data_to_send(event.module.name, event.event.name, event.formatted_string, data_to_send)
+        populate_data_to_send(
+            event.module.name, event.event.name,
+            event.formatted_string, data_to_send,
+            timestamp_dt=event.downlink_times.scet_est)
 
     return data_to_send
 
 
-def populate_data_to_send(metric, channel, value, data_to_send):
-    # Get the current time with microsecond precision
-    current_time = datetime.utcnow()
+def populate_data_to_send(metric, channel, value, data_to_send,
+                          timestamp_dt: datetime | None = None):
+    if timestamp_dt is None:
+        # Get the current time with microsecond precision
+        timestamp_dt = datetime.utcnow()
+
     # Convert datetime to string with a specific format
-    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = timestamp_dt.strftime("%Y-%m-%d %H:%M:%S")
 
     metrics = data_to_send["data"]
 
