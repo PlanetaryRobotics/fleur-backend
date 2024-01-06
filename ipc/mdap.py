@@ -123,6 +123,30 @@ def process_ipc_payload(ipc_payload):
 
 
 def send_data_to_backend(sock, data):
+    # Display some statistics:
+    # Count number of modules:
+    modules = [*data['data'].keys()]
+    n_modules = len(modules)
+    # Count total number of telem points:
+    n_telem_pts = sum(
+        len([*entries_at_time_pt.keys()])
+        for module in data['data'].values()
+        for entries_at_time_pt in module.values()
+    )
+    # Count number of distinct telem channels:
+    n_telem_channels = len(set(
+        m_name + '_' + channel_name
+        for m_name, module in data['data'].items()
+        for entries_at_time_pt in module.values()
+        for channel_name in entries_at_time_pt.keys()
+    ))
+    app.logger.info(
+        f"Sending {n_telem_pts} entries "
+        f"for {n_telem_channels} channels "
+        f"across {n_modules} modules ({', '.join(modules)}) . . ."
+    )
+
+    # Transmit data:
     json_data = json.dumps(data)
     sock.send(json_data.encode('utf-8'))
 
