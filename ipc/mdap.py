@@ -100,24 +100,23 @@ def populate_data_to_send(metric, channel, value, data_to_send,
 
 
 def process_ipc_payload(ipc_payload):
-    try:
-        msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
-        payloads = msg.content.payloads
-
-    except Exception as e:
-        app.logger.error(
-            f"Failed to decode IPC message `{msg}` "
-            f"of `{ipc_payload=}` b/c: `{e}`."
-        )
-        return None
-
     data_to_send = {
         "asset": "iris",
         "data": {}
     }
+    try:
+        msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
+        payloads = msg.content.payloads
 
-    data_to_send = telem_to_message(data_to_send, payloads)
-    data_to_send = events_to_message(data_to_send, payloads)
+        data_to_send = telem_to_message(data_to_send, payloads)
+        data_to_send = events_to_message(data_to_send, payloads)
+
+    except Exception as e:
+        app.logger.error(
+            f"Failed to decode IPC message `{ipc_payload.message}` "
+            f"of `{ipc_payload=}` b/c: `{e}`."
+        )
+        return None
 
     return data_to_send
 
@@ -152,7 +151,7 @@ def send_data_to_backend(sock, data):
 
 
 def main():
-    server_address = ('127.0.0.1', 8070)
+    server_address = ('0.0.0.0', 8070)
     client_socket = connect_to_telemetry_server(server_address)
 
     try:
