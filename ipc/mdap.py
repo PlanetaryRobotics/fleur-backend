@@ -29,12 +29,15 @@ def connect_to_telemetry_server(address: tuple) -> socket.socket:
     return client_socket
 
 
-def test_telemetry(data_to_send, temperature):
+def test_telemetry(data_to_send, temperature, timestamp_dt: datetime | None = None):
     # Convert the temperature from Kelvin to Celsius.
     value = temperature - 273.15
     app.logger.notice(f"BATTERY TEMP IS: {value}ºC")
 
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    if timestamp_dt is None:
+        timestamp_dt = datetime.utcnow()
+
+    timestamp = timestamp_dt.strftime("%Y-%m-%d %H:%M:%S")
     metrics = data_to_send["data"]
     metric_data = metrics.get("WatchdogHeartbeatTvac", {})
     timestamp_data = metric_data.get(timestamp, {})
@@ -52,11 +55,13 @@ def telem_to_message(data_to_send, payloads):
         telemetry = cast(TelemetryPayload, telemetry)
 
         populate_data_to_send(telemetry.module.name, telemetry.channel.name,
-                              telemetry.data, data_to_send)
+                              telemetry.data, data_to_send,
+                              timestamp_dt=telemetry.downlink_times.scet_est)
 
         # Testing against this particular module
         if telemetry.module.name == "WatchdogHeartbeatTvac" and telemetry.channel.name == "AdcTempKelvin":
-            test_telemetry(data_to_send, telemetry.data)
+            test_telemetry(data_to_send, telemetry.data,
+                           timestamp_dt=telemetry.downlink_times.scet_est)
 
     return data_to_send
 
@@ -64,16 +69,22 @@ def telem_to_message(data_to_send, payloads):
 def events_to_message(data_to_send, payloads):
     for event in payloads[EventPayload]:
         event = cast(EventPayload, event)
-        populate_data_to_send(event.module.name, event.event.name, event.formatted_string, data_to_send)
+        populate_data_to_send(
+            event.module.name, event.event.name,
+            event.formatted_string, data_to_send,
+            timestamp_dt=event.downlink_times.scet_est)
 
     return data_to_send
 
 
-def populate_data_to_send(metric, channel, value, data_to_send):
-    # Get the current time with microsecond precision
-    current_time = datetime.utcnow()
+def populate_data_to_send(metric, channel, value, data_to_send,
+                          timestamp_dt: datetime | None = None):
+    if timestamp_dt is None:
+        # Get the current time with microsecond precision
+        timestamp_dt = datetime.utcnow()
+
     # Convert datetime to string with a specific format
-    timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = timestamp_dt.strftime("%Y-%m-%d %H:%M:%S")
 
     metrics = data_to_send["data"]
 
@@ -89,35 +100,58 @@ def populate_data_to_send(metric, channel, value, data_to_send):
 
 
 def process_ipc_payload(ipc_payload):
-    try:
-        msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
-        payloads = msg.content.payloads
-
-    except Exception as e:
-        app.logger.error(
-            f"Failed to decode IPC message `{msg}` "
-            f"of `{ipc_payload=}` b/c: `{e}`."
-        )
-        return None
-
     data_to_send = {
         "asset": "iris",
         "data": {}
     }
+    try:
+        msg = ipc.guard_msg(ipc_payload.message, DownlinkedPayloadsMessage)
+        payloads = msg.content.payloads
 
-    data_to_send = telem_to_message(data_to_send, payloads)
-    data_to_send = events_to_message(data_to_send, payloads)
+        data_to_send = telem_to_message(data_to_send, payloads)
+        data_to_send = events_to_message(data_to_send, payloads)
+
+    except Exception as e:
+        app.logger.error(
+            f"Failed to decode IPC message `{ipc_payload.message}` "
+            f"of `{ipc_payload=}` b/c: `{e}`."
+        )
+        return None
 
     return data_to_send
 
 
 def send_data_to_backend(sock, data):
+    # Display some statistics:
+    # Count number of modules:
+    modules = [*data['data'].keys()]
+    n_modules = len(modules)
+    # Count total number of telem points:
+    n_telem_pts = sum(
+        len([*entries_at_time_pt.keys()])
+        for module in data['data'].values()
+        for entries_at_time_pt in module.values()
+    )
+    # Count number of distinct telem channels:
+    n_telem_channels = len(set(
+        m_name + '_' + channel_name
+        for m_name, module in data['data'].items()
+        for entries_at_time_pt in module.values()
+        for channel_name in entries_at_time_pt.keys()
+    ))
+    app.logger.info(
+        f"Sending {n_telem_pts} entries "
+        f"for {n_telem_channels} channels "
+        f"across {n_modules} modules ({', '.join(modules)}) . . ."
+    )
+
+    # Transmit data:
     json_data = json.dumps(data)
     sock.send(json_data.encode('utf-8'))
 
 
 def main():
-    server_address = ('127.0.0.1', 8070)
+    server_address = ('0.0.0.0', 8070)
     client_socket = connect_to_telemetry_server(server_address)
 
     try:
