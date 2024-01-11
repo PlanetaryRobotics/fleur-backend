@@ -115,7 +115,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 7,
         "w": 12,
         "x": 0,
         "y": 0
@@ -140,7 +140,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Therm0\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModPeregrine_DeckD2TempKelvin\")",
           "refId": "A"
         }
       ],
@@ -207,7 +207,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 7,
         "w": 12,
         "x": 12,
         "y": 0
@@ -232,7 +232,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Therm1\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"WatchdogHeartbeat_BattAdcTempKelvin\")",
           "refId": "A"
         }
       ],
@@ -248,7 +248,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic-by-name"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisBorderShow": false,
@@ -300,10 +300,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
+        "h": 14,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 7
       },
       "id": 3,
       "options": {
@@ -325,7 +325,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Therm2\" or r[\"_field\"] == \"Therm3\" or r[\"_field\"] == \"Therm4\" or r[\"_field\"] == \"Therm5\" or r[\"_field\"] == \"THerm6\" or r[\"_field\"] == \"Therm7\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModTemps_BoardTherm0Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm1Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm2Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm3Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm4Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm5Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm6Kelvin\")",
           "refId": "A"
         }
       ],
@@ -393,10 +393,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
+        "h": 14,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 7
       },
       "id": 4,
       "options": {
@@ -418,7 +418,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Therm8\" or r[\"_field\"] == \"Therm9\" or r[\"_field\"] == \"Therm10\" or r[\"_field\"] == \"Therm11\" or r[\"_field\"] == \"Therm12\" or r[\"_field\"] == \"Therm13\" or r[\"_field\"] == \"Therm14\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModTemps_BoardTherm6Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm7Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm8Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm9Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm10Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm11Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm12Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm13Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm14Kelvin\")",
           "refId": "A"
         }
       ],
@@ -438,8 +438,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Iris Temperatures Test",
-  "uid": "f09e29e1-522a-4002-b4e3-e8952e924b24",
-  "version": 2,
+  "title": "Iris Temperatures",
+  "uid": "d1929c54-2cb3-4bae-8fff-376e145d7b81",
+  "version": 4,
   "weekStart": ""
 }

@@ -56,7 +56,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_MotorBusCurrent",
       "fieldConfig": {
@@ -137,7 +137,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
@@ -149,7 +149,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_Radio3V3Current",
       "fieldConfig": {
@@ -230,7 +230,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
@@ -242,7 +242,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_Fpga3V3Current\n",
       "fieldConfig": {
@@ -323,7 +323,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
@@ -335,7 +335,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_Hercules3V3Current",
       "fieldConfig": {
@@ -416,7 +416,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
@@ -428,7 +428,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_Fpga1V2Current ",
       "fieldConfig": {
@@ -509,7 +509,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
@@ -521,7 +521,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "P951FEA4DE68E13C5"
       },
       "description": "MetaModRoverPower_Hercules1V2Current",
       "fieldConfig": {
@@ -602,7 +602,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "P951FEA4DE68E13C5"
           },
           "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Voltage\")",
           "refId": "A"
