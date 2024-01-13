@@ -3,10 +3,13 @@ import socket
 from datetime import datetime
 from typing import cast
 
+import argparse
+
 import IrisBackendv3 as IB3
 import IrisBackendv3.ipc as ipc
 from IrisBackendv3.codec.payload import TelemetryPayload, EventPayload
 from IrisBackendv3.ipc.messages import DownlinkedPayloadsMessage
+from IrisBackendv3.logs import VALID_LOG_LEVELS
 
 IB3.init_from_latest()
 
@@ -20,6 +23,32 @@ manager = ipc.IpcAppManagerSync(socket_specs={
         topics=[ipc.Topic.DL_PAYLOADS]
     )
 })
+
+parser = argparse.ArgumentParser(description=(
+    'FLEUR-IRIS GDS — MDAP Connection for Data Ingest — CLI'
+))
+
+def get_opts(
+    default_log_level: str = 'VERBOSE'
+):
+    parser.add_argument('-i', '--fleur-data-ip', type=str, default="0.0.0.0")
+    parser.add_argument('-p', '--fleur-data-port', type=int, default=8070)
+
+    def str_to_log_level(s):
+        if isinstance(s, str) and s.upper() in VALID_LOG_LEVELS:
+            return s.upper()
+        else:
+            raise argparse.ArgumentTypeError(
+                f'Valid log level expected. Log levels are: {VALID_LOG_LEVELS}'
+            )
+
+    parser.add_argument('--log-level', type=str_to_log_level, default=default_log_level,
+                        help=('Logging level to be used (i.e. how annoying the logging '
+                              'printouts should be). Only logs with importance greater '
+                              'than or equal to the specified logging level are '
+                              f'displayed. Valid logging levels are: {VALID_LOG_LEVELS}'))
+
+    return parser.parse_args()
 
 
 def connect_to_telemetry_server(address: tuple) -> socket.socket:
@@ -150,8 +179,9 @@ def send_data_to_backend(sock, data):
     sock.send(json_data.encode('utf-8'))
 
 
-def main():
-    server_address = ('0.0.0.0', 8070)
+def main(opts):
+    app.setLogLevel(opts.log_level)
+    server_address = (opts.fleur_data_ip, opts.fleur_data_port)
     client_socket = connect_to_telemetry_server(server_address)
 
     try:
@@ -162,10 +192,12 @@ def main():
             if data_to_send:
                 send_data_to_backend(client_socket, data_to_send)
 
-    except KeyboardInterrupt:
-        print('Closing...')
+    except Exception as e:
+        app.logger.critical(f"Exception Occurred: {e}")
+        app.logger.critical('Closing...')
         client_socket.close()
 
 
 if __name__ == "__main__":
-    main()
+    opts = get_opts()
+    main(opts)
