@@ -3,6 +3,7 @@ services:
   mission_data:
     build:
       context: ./mission_data
+    stop_signal: SIGKILL  # hangs for 10s otherwise, waiting for SIGKILL. Same outcome as before, just faster now.
     ports:
       - 8086:8086
     environment:
@@ -29,6 +30,7 @@ services:
   data_ingestion:
     build:
       context: ./data_ingestion
+    stop_signal: SIGKILL  # hangs for 10s otherwise, waiting for SIGKILL. Same outcome as before, just faster now.
     ports:
       - 8070:8070
     depends_on:
