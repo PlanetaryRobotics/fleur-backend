@@ -59,7 +59,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModPeregrine_DeckD2TempKelvin",
+      "description": "DeckD2TempKelvin",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -140,7 +140,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModPeregrine_DeckD2TempKelvin\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"DeckD2TempKelvin\")",
           "refId": "A"
         }
       ],
@@ -232,7 +232,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"WatchdogHeartbeat_BattAdcTempKelvin\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"BattAdcTempKelvin\")",
           "refId": "A"
         }
       ],
@@ -325,11 +325,11 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModTemps_BoardTherm0Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm1Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm2Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm3Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm4Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm5Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm6Kelvin\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"BoardTherm0_RT1Kelvin\" or r[\"_field\"] == \"BoardTherm1_RT2Kelvin\" or r[\"_field\"] == \"BoardTherm2_RT3Kelvin\" or r[\"_field\"] == \"BoardTherm3_RT4Kelvin\" or r[\"_field\"] == \"BoardTherm4_RT5Kelvin\" or r[\"_field\"] == \"BoardTherm5_RT6Kelvin\")",
           "refId": "A"
         }
       ],
-      "title": "RT1-5 SBC (K)",
+      "title": "RT1-6 SBC Thermistors (K)",
       "type": "timeseries"
     },
     {
@@ -418,11 +418,11 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModTemps_BoardTherm6Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm7Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm8Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm9Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm10Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm11Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm12Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm13Kelvin\" or r[\"_field\"] == \"MetaModTemps_BoardTherm14Kelvin\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"RoverTherm6_TMR1Kelvin\" or r[\"_field\"] == \"RoverTherm7_TMR2Kelvin\" or r[\"_field\"] == \"RoverTherm8_TMR3Kelvin\" or r[\"_field\"] == \"RoverTherm9_TMR4Kelvin\" or r[\"_field\"] == \"RoverTherm10_TMR5Kelvin\" or r[\"_field\"] == \"RoverTherm11_TMR6Kelvin\" or r[\"_field\"] == \"RoverTherm12_TMR7Kelvin\" or r[\"_field\"] == \"RoverTherm13_TMR6Kelvin\" or r[\"_field\"] == \"RoverTherm14_TMR7Kelvin\" or r[\"_field\"] == \"RoverTherm15_TMR8Kelvin\")",
           "refId": "A"
         }
       ],
-      "title": "RT6-14 Internal (K)",
+      "title": "Internal Rover Thermistors (K)",
       "type": "timeseries"
     }
   ],

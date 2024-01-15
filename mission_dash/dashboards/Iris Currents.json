@@ -58,7 +58,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_MotorBusCurrent",
+      "description": "MotorBusCurrent",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -139,7 +139,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_MotorBusCurrent\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MotorBusCurrent_mA\")",
           "refId": "A"
         }
       ],
@@ -151,7 +151,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_Radio3V3Current",
+      "description": "Radio3V3Current",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -232,7 +232,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_Radio3V3Current\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Radio3V3Current_mA\")",
           "refId": "A"
         }
       ],
@@ -244,7 +244,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_Fpga3V3Current\n",
+      "description": "Fpga3V3Current\n",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -325,7 +325,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_Fpga3V3Current\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Fpga3V3Current_mA\")",
           "refId": "A"
         }
       ],
@@ -337,7 +337,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_Hercules3V3Current",
+      "description": "Hercules3V3Current",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -418,7 +418,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_Hercules3V3Current\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Hercules3V3Current_mA\")",
           "refId": "A"
         }
       ],
@@ -430,7 +430,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_Fpga1V2Current ",
+      "description": "Fpga1V2Current ",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -511,11 +511,11 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_Fpga1V2Current \")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Fpga1V2Current \")",
           "refId": "A"
         }
       ],
-      "title": "FPGA 1V2 Curent",
+      "title": "FPGA 1V2 Current",
       "type": "timeseries"
     },
     {
@@ -523,7 +523,7 @@
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
       },
-      "description": "MetaModRoverPower_Hercules1V2Current",
+      "description": "Hercules1V2Current",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -604,7 +604,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"MetaModRoverPower_Hercules1V2Current\")",
+          "query": "from(bucket: \"iris\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"Hercules1V2Current_mA\")",
           "refId": "A"
         }
       ],
