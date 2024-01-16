@@ -28,6 +28,7 @@ parser = argparse.ArgumentParser(description=(
     'FLEUR-IRIS GDS — MDAP Connection for Data Ingest — CLI'
 ))
 
+
 def get_opts(
     default_log_level: str = 'VERBOSE'
 ):
@@ -193,7 +194,7 @@ def main(opts):
                 send_data_to_backend(client_socket, data_to_send)
 
     except Exception as e:
-        app.logger.critical(f"Exception Occurred: {e}")
+        app.logger.critical(f"Exception Occurred: ({type(e)}): {e}")
         app.logger.critical('Closing...')
         client_socket.close()
 
