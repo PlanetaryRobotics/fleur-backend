@@ -19,7 +19,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -235,6 +234,409 @@
       "title": "Key System Voltages (V)",
       "transparent": true,
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P951FEA4DE68E13C5"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "light-purple",
+            "mode": "shades"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": 600000,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "super-light-blue",
+                  "index": 0,
+                  "text": "LO"
+                },
+                "1": {
+                  "color": "light-red",
+                  "index": 1,
+                  "text": "HI"
+                },
+                "2": {
+                  "color": "purple",
+                  "index": 2,
+                  "text": "Z"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "3V3_Enable"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "3V3_ON"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "BattStat"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "BSTAT"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery_Enable"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "BE"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "BmsBoot"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "BMSB"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CamSelect"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "CAMSEL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Charger_Enable"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "CE"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "DEPLOY"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FpgaNRst"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "F_NRST"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FpgaOn"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "F_ON"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heater"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "HEATER"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HerculesOn"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "H_ON"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hercules_NPORRST"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "H_NPORRST"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hercules_NRST"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "H_NRST"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LatchBatt"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "LB"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LatchReset"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "LR"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LatchSet"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "LS"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RadioNRst"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "R_NRST"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RadioOn"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "R_ON"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "VLR_Enable"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "VLR_EN"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "VSA_Enable"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "VSA_EN"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "id": 7,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "always",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "query": "from(bucket: \"iris\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"MetaModWatchdogMonitor\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Watchdog Digital States",
+      "transparent": true,
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P951FEA4DE68E13C5"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 8,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "query": "from(bucket: \"iris\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_field\"] == \"Io_BatteryConnectionStatus\" or r[\"_field\"] == \"Io_BatteryLatchStatus\" or r[\"_field\"] == \"Io_BatteryState\" or r[\"_field\"] == \"Io_ChargerState\" or r[\"_field\"] == \"Io_ChargingStatus1\" or r[\"_field\"] == \"Io_ChargingStatus2\" or r[\"_field\"] == \"Watchdog_State\" or r[\"_field\"] == \"Watchdog_Uart0State\" or r[\"_field\"] == \"Watchdog_Uart1State\" or r[\"_field\"] == \"StateAbbr\" or r[\"_field\"] == \"HeaterStatus\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Watchdog States",
+      "transparent": true,
+      "type": "state-timeline"
     }
   ],
   "refresh": "5s",
@@ -244,13 +646,13 @@
     "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Iris Watchdog Monitor Copy",
+  "title": "Iris Watchdog Monitor",
   "uid": "d20a2a53-483c-4639-ad61-138ce6830867",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
