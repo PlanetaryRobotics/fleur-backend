@@ -83,14 +83,23 @@ def test_telemetry(data_to_send, temperature, timestamp_dt: datetime | None = No
 def telem_to_message(data_to_send, payloads):
     for telemetry in payloads[TelemetryPayload]:
         telemetry = cast(TelemetryPayload, telemetry)
+        channel = telemetry.channel
+
+        telem_val = telemetry.data
+        # If telem channel is an enum, make sure value is a string:
+        if channel.is_enum:
+            if isinstance(telem_val, (int, float)):
+                telem_val = channel.get_enum_name(int(telem_val))
+            else:
+                telem_val = str(telem_val)
 
         populate_data_to_send(telemetry.module.name, telemetry.channel.name,
-                              telemetry.data, data_to_send,
+                              telem_val, data_to_send,
                               timestamp_dt=telemetry.downlink_times.scet_est)
 
         # Testing against this particular module
         if telemetry.module.name == "WatchdogHeartbeatTvac" and telemetry.channel.name == "AdcTempKelvin":
-            test_telemetry(data_to_send, telemetry.data,
+            test_telemetry(data_to_send, telem_val,
                            timestamp_dt=telemetry.downlink_times.scet_est)
 
     return data_to_send
